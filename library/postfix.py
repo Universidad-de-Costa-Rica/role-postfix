@@ -2,8 +2,12 @@
 
 # Based on: https://gist.github.com/mgedmin/5f8ac034df0c371444be
 
+# Make coding more python3-ish, this is required for contributions to Ansible
+from __future__ import (absolute_import, division, print_function)
+
 import subprocess
-from ansible.module_utils.basic import AnsibleModule, AnsibleError
+from ansible.errors import AnsibleError
+from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_native, to_text
 
 
