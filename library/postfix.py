@@ -3,6 +3,8 @@
 # Based on: https://gist.github.com/mgedmin/5f8ac034df0c371444be
 
 import subprocess
+from ansible.module_utils.basic import AnsibleModule, AnsibleError
+from ansible.module_utils._text import to_native, to_text
 
 
 DOCUMENTATION = '''
@@ -63,42 +65,42 @@ def main():
             state=dict(type='str', default='present', choices=['absent', 'present']),
             name=dict(type='str', required=True),
             value=dict(type='str', required=True),
-            #master=dict(type='bool', default=False),
-            #service_type=dict(type='str', default='inet'),
+            # master=dict(type='bool', default=False),
+            # service_type=dict(type='str', default='inet'),
         ),
         supports_check_mode=True,
     )
     state = module.params['state']
     name = module.params['name']
     value = module.params['value'].strip()
-    #master = module.params['master']
-    #service_type = module.params['service_type']
-    
+    # master = module.params['master']
+    # service_type = module.params['service_type']
+
     old_value = run(['postconf', '-h', name], module).strip()
     default_value = run(['postconf', '-dh', name], module).strip()
-    exit_msg=""
+    exit_msg = ""
 
-    if state == 'present':  
-      if value == old_value:
-          module.exit_json(
-              msg="",
-              changed=False,
-          )
-      if not module.check_mode:
-        run(['postconf', '{}=\'{}\''.format(name, value)], module)
-        exit_msg = "setting changed"
+    if state == 'present':
+        if value == old_value:
+            module.exit_json(
+                msg="",
+                changed=False,
+            )
+        if not module.check_mode:
+            run(['postconf', '{}=\'{}\''.format(name, value)], module)
+            exit_msg = "setting changed"
     if state == 'absent':
-      if not module.check_mode:
-        run(['postconf','-X', '{}'.format(name)], module)
-        exit_msg = "setting removed"
-        value = default_value
-      # Mark not changed if removed value was default.
-      if default_value == old_value:
-          module.exit_json(
-              msg="",
-              changed=False,
-          )
-    
+        if not module.check_mode:
+            run(['postconf', '-X', '{}'.format(name)], module)
+            exit_msg = "setting removed"
+            value = default_value
+        # Mark not changed if removed value was default.
+        if default_value == old_value:
+            module.exit_json(
+                msg="",
+                changed=False,
+            )
+
     module.exit_json(
         msg=exit_msg,
         diff=dict(
@@ -108,10 +110,6 @@ def main():
             after=to_text(value + '\n')),
         changed=True,
     )
-
-
-from ansible.module_utils.basic import *  # noqa
-from ansible.module_utils._text import to_native, to_text
 
 
 if __name__ == '__main__':
