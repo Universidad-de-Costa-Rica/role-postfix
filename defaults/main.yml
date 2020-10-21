@@ -1,0 +1,13 @@
+---
+postfix_domain: example.org
+# postfix_main_cfg_file: /etc/postfix/main.cf
+postfix_main_cfg:
+  recipient_delimiter: "+"
+  unknown_local_recipient_reject_code: "550"
+  owner_request_special: "no"
+  transport_maps: hash:/var/lib/mailman3/data/postfix_lmtp
+  local_recipient_maps: hash:/var/lib/mailman3/data/postfix_lmtp
+  relay_domains: hash:/var/lib/mailman3/data/postfix_domains
+
+# postfix_master_cfg_file: /etc/postfix/master.cf
+postfix_master_cfg: []

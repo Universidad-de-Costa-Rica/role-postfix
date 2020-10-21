@@ -1,0 +1,16 @@
+galaxy_info:
+  role_name: postfix
+  author: Manuel Delgado López
+  description: Install and configure Postfix MTA
+  license: GPL-2.0-or-later
+  min_ansible_version: 2.9
+  platforms:
+    - name: Debian
+      versions:
+        - buster
+
+  galaxy_tags:
+    - postix
+    - debian
+    - email
+  

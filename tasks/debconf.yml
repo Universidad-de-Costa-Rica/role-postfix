@@ -1,0 +1,27 @@
+- name: "[debconf] Install debconf utils"
+  apt:
+    name: "{{ postfix_packages_debconf }}"
+    state: present
+
+- name: "[debconf] Set postfix debconf options"
+  loop: "{{ postfix_debconf }}"
+  when:
+    - item.vtype != 'password'
+  debconf:
+    name: "{{ item.name }}"
+    question: "{{ item.question }}"
+    vtype: "{{ item.vtype }}"
+    value: "{{ item.value }}"
+
+# TODO: check if there are password fields for postfix
+- name: "[debconf] Set postfix debconf passwords"
+  loop: "{{ postfix_debconf }}"
+  no_log: true
+  changed_when: false
+  when:
+    - item.vtype == 'password'
+  debconf:
+    name: "{{ item.name }}"
+    question: "{{ item.question }}"
+    vtype: "{{ item.vtype }}"
+    value: "{{ item.value }}"
