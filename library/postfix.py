@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # Based on: https://gist.github.com/mgedmin/5f8ac034df0c371444be
 
@@ -80,39 +81,40 @@ def main():
     # master = module.params['master']
     # service_type = module.params['service_type']
 
-    old_value = run(['postconf', '-h', name], module).strip()
-    default_value = run(['postconf', '-dh', name], module).strip()
+    old_value = run(['postconf', '-h', name], module).decode("utf-8").strip()
+    default_value = run(['postconf', '-dh', name], module).decode("utf-8").strip()
     exit_msg = ""
+    changed = False
+    diff = dict(
+        before='',
+        after='',
+        before_header=to_text('postconf -h {}'.format(name)),
+        after_header=to_text('postconf -h {}'.format(name)),
+    )
 
     if state == 'present':
-        if value == old_value:
-            module.exit_json(
-                msg="",
-                changed=False,
-            )
-        if not module.check_mode:
-            run(['postconf', '{}=\'{}\''.format(name, value)], module)
+        if value != old_value and not module.check_mode:
+            run(['postconf', '{}={}'.format(name, value)], module)
             exit_msg = "setting changed"
+            changed = True
+            diff['before'] = to_text(old_value + '\n')
+            diff['after'] = to_text(value + '\n')
     if state == 'absent':
         if not module.check_mode:
             run(['postconf', '-X', '{}'.format(name)], module)
             exit_msg = "setting removed"
-            value = default_value
         # Mark not changed if removed value was default.
-        if default_value == old_value:
-            module.exit_json(
-                msg="",
-                changed=False,
-            )
+        if default_value != old_value:
+            exit_msg = "setting removed"
+            changed = True
+            diff['before'] = to_text(old_value + '\n')
+            diff['after'] = to_text(default_value + '\n')
+            diff['after_header'] = to_text('postconf -dh {}'.format(name)),
 
     module.exit_json(
         msg=exit_msg,
-        diff=dict(
-            before_header=to_text('postconf -h {}'.format(name)),
-            after_header=to_text('postconf -h {}'.format(name)),
-            before=to_text(old_value + '\n'),
-            after=to_text(value + '\n')),
-        changed=True,
+        diff=diff,
+        changed=changed,
     )
 
 
