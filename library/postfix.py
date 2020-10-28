@@ -5,12 +5,7 @@
 
 # Make coding more python3-ish, this is required for contributions to Ansible
 from __future__ import (absolute_import, division, print_function)
-
-import subprocess
-from ansible.errors import AnsibleError
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils._text import to_native, to_text
-
+__metaclass__ = type
 
 DOCUMENTATION = '''
 ---
@@ -51,6 +46,12 @@ EXAMPLES = '''
     - { name: inet_protocols,  value: ipv4          }
 '''
 
+import subprocess
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils._text import to_native, to_text
+
+class TaskError(Exception):
+    pass
 
 def run(args, module):
     try:
@@ -123,4 +124,4 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         #  TODO: better Exception handling
-        raise AnsibleError('Something happened, this was original exception: %s' % to_native(e))
+        raise TaskError('Something happened, this was original exception: %s' % to_native(e))
